@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
 {
@@ -28,20 +29,41 @@ class ProjectController extends Controller
         ],200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //
+        $attributes = $request->validate([
+            'name' => 'required|string|max:255|unique:projects',
+            'description' => 'required|string|max:500',
+            'category' => 'required|string|max:255',
+            'owner_name' => 'required|string|max:255',
+            'image' => 'sometimes|image|mimes:jpeg,png,jpg|max:2048',
+            'money' => 'required|integer|min:1',
+
+        ]);
+
+        // Check if the user uploads an image to the Project
+        if (!$request->has('image')) {
+            //return default Project image
+            $attributes['image'] = asset('project.jpg');
+        }else{
+            // name the image and store it
+            $imageName = time() . '.' . request()->image->getClientOriginalExtension();
+            $attributes['image'] = $request->file('image')->storeAs('/projects/projectImages', $imageName , 'public');
+        }
+
+        $attributes['user_id'] = Auth::guard('api')->id();
+
+        $project = Project::create($attributes);
+
+        return response()->json([
+            'message' => 'تمت إضافة المشروع بنجاح  ',
+            'project' => new ProjectResource($project),
+        ],200);
+
     }
 
     /**

@@ -136,6 +136,10 @@ return [
         'code' => 'الكود',
         'image' => 'الصورة',
         'invitation_code' => 'كود الدعوة',
+        'description' => 'الوصف',
+        'category' => 'الفئة',
+        'money' => 'رأس المال',
+        'owner_name' => 'اسم المسؤول عن المشروع'
         // Add more attribute names as needed
     ],
 ];

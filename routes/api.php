@@ -26,6 +26,7 @@ Route::post('reset-password', [PasswordResetController::class, 'reset']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/', [ProjectController::class, 'index']);
+    Route::post('/project', [ProjectController::class, 'store']);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

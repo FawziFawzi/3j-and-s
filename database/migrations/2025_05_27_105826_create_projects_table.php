@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->unique();
             $table->string('owner_name');
             $table->enum('category', ['تقني', 'زراعي', 'تجاري', 'صناعي', 'صحي']);
             $table->enum('status', ['pending', 'active', 'finished'])->default('pending');

@@ -16,6 +16,7 @@ class Project extends Model
         'description',
         'image',
         'money',
+        'owner_name',
         'status',
         'category'
     ];
