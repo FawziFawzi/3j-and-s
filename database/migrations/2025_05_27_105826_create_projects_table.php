@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->enum('category', ['تقني', 'زراعي', 'تجاري', 'صناعي', 'صحي']);
-            $table->string('description');
+            $table->text('description');
             $table->string('image')->nullable();
             $table->decimal('money', 15,2);
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();

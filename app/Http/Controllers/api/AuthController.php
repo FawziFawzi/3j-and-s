@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserRessource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -13,31 +16,45 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         //// Validating user's inputs ////
-        $request->validate([
+        $attributes =$request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users|max:255',
-            'phone' => 'required|string|max:255',
+            'phone' => 'required|regex:/^[0-9]{11}$/',
             'address' => 'required|string|max:255',
-            'image' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'sometimes|file|mimes:jpeg,png,jpg|max:2048',
             'password' => 'required|min:8|confirmed',
-            'code' => 'string|unique:users.code'
+            'invitation_code' => 'nullable|string|exists:users,code'
         ]);
 
+        // Check if the user uploads an image to store it
+        if (!$request->has('image')) {
+            //return default avatar image
+            $attributes['image'] = asset('profile.png');
+        }else{
+            // name the image and store it
+            $imageName = time() . '.' . request()->image->getClientOriginalExtension();
+            $attributes['image'] = $request->file('image')->storeAs('/users/profileImages', $imageName , 'public');
+        }
+
+        $attributes['password'] = Hash::make($request->password);
+
+        // Generate The code for the user
+        $attributes['code'] = 'REQ-'.now()->format('Ymd').'-'.Str::random(5);
+
         //After validation succeeded Store the user in the database
-//        $user = User::create([
-//            'name' => $request->name,
-//            'email' => $request->email,
-//            'password' => Hash::make($request->password),
-//        ]);
-//        // Creating a token
-//        $token = $user->createToken('auth-token')->plainTextToken;
-//
-//        return response()->json([
-//            'message' => 'Admin Registered Successfully!',
-//            'admin' => new AdminResource($user),
-//            'token' => $token,
-//        ], 200);
+        $user = User::create($attributes);
+
+
+        // Creating a token
+        $token = $user->createToken('auth-token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'تم تسجيل مستخدم جديد بنجاح',
+            'user' => new UserRessource($user),
+            'token' => $token,
+        ], 200);
     }
+
 
 
     //// Login Method ////
@@ -50,22 +67,20 @@ class AuthController extends Controller
         ]);
 
         //Retrieving Admin Data
-        $admin = Admin::where('email',$request->email)->first();
+        $user = User::where('email',$request->email)->first();
 
         //check the credentials
-        if (!$admin || !Hash::check($request->password, $admin->password)) {
-            throw ValidationException::withMessages([
-                'error' => ['The provided credentials are incorrect.'],
-            ]);
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages(['يوجد خطأ ببيانات المستخدم حاول مرة أخرى']);
         }
 
         // Creating a token
-        $token = $admin->createToken('auth-token')->plainTextToken;
+        $token = $user->createToken('auth-token')->plainTextToken;
 
         //Return token with accepted response
         return response()->json([
-            'message' => 'Admin Login Successfully!',
-            'user' => new AdminResource($admin),
+            'message' => 'تم تسجيل الدخول بنجاح',
+            'user' => new UserRessource($user),
             'token' => $token,
         ],200);
 

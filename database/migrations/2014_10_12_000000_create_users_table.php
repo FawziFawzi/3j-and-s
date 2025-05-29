@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('address');
             $table->string('image')->nullable();
             $table->string('code')->unique();
+            $table->string('invitation_code')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
