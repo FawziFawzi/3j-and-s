@@ -21,7 +21,7 @@ class UserFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'address' => fake()->address(),
-            'image' => asset('profile.png'),
+            'image' => 'profile.png',
             'phone' => fake()->phoneNumber(),
             'code' =>'REQ-'.now()->format('Ymd').'-'.Str::random(5) ,
             'invitation_code' => null,
