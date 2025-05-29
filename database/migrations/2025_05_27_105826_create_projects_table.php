@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('owner_name');
             $table->enum('category', ['تقني', 'زراعي', 'تجاري', 'صناعي', 'صحي']);
+            $table->enum('status', ['pending', 'active', 'finished'])->default('pending');
             $table->text('description');
             $table->string('image')->nullable();
             $table->decimal('money', 15,2);

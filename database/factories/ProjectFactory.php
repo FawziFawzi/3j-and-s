@@ -19,6 +19,7 @@ class ProjectFactory extends Factory
         return [
             'name' => $this->faker->company(),
             'description' => $this->faker->text(),
+            'owner_name' => fake()->firstNameMale(),
             'category' => fake()->randomElement(['تقني', 'زراعي', 'تجاري', 'زراعي', 'صحي']),
             'image' => 'project.jpg',
             'money' => fake()->numberBetween(100000,10000000),
